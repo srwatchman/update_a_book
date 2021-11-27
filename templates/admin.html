@@ -1,0 +1,9 @@
+{% extends "flask_user_layout.html" %} 
+
+{%block body_content %} 
+<ul class="nav navbar-nav">
+    <li><a href="{{url_for('seedDB')}}">Seed Books in Data Base</a></li>
+    <li><a href="{{url_for('eraseDB')}}">Erase Books from Database</a></li>
+</ul>
+
+{% endblock %}

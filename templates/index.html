@@ -1,0 +1,9 @@
+{% extends "flask_user_layout.html" %} 
+
+{% block body_content %} 
+
+<h1>Welcome to Books!!!</h1>
+<a href="{{url_for('all_books')}}" class="books">See Our Books</a>
+<p>Member user name: member@example.com password: Password1</p>
+<p>Admin user name: admin@example.com password: Password1</p>
+{% endblock %}
