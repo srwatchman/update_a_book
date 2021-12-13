@@ -2,11 +2,12 @@
 
 {% block body_content %} 
 
-    {% for book in books%}
+    {% for book in books %}
         <div class="marx">
             <h2>{{ book['title']}}</h2>
             <h4>{{ book['author']}}</h4>
             <h6>{{ book['description']}}</h6>
+            <a href="{{ url_for('add_book', book_id=1) }}">Edit book</a>
         </div>
     {% endfor %}
   

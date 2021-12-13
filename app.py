@@ -5,10 +5,12 @@
 # - Using string-based templates (instead of file-based templates)
 
 import datetime
+from enum import unique
 from flask import Flask, request, render_template_string, render_template
 from flask_babelex import Babel
 from flask_sqlalchemy import SQLAlchemy
 from flask_user import current_user, login_required, roles_required, UserManager, UserMixin
+from werkzeug.utils import redirect
 
 
 # Class-based application configuration
@@ -88,6 +90,13 @@ def create_app():
     # Setup Flask-User and specify the User data-model
     user_manager = UserManager(app, db, User)
 
+    class Book_data(db.Model):
+        __tablename__ = 'book_data'
+        id = db.Column(db.Integer(), primary_key=True)
+        author = db.Column(db.String(20), unique=True)
+        title = db.Column(db.String(20), unique=True)
+        description = db.Column(db.String(50), unique=True)
+
     # Create all database tables
     db.create_all()
 
@@ -161,17 +170,30 @@ def create_app():
         my_list_of_books = [row for row in books]
         return render_template('all_books.html', books=my_list_of_books)
 
-    @app.route('/add_book', methods={'GET','POST'})
+    @app.route('/add_book/<book_id>', methods={'GET','POST'})
     @login_required
-    def addbook():
-        if request.method == 'POST':
-            author = request.form['author']
-            title = request.form['title']
-            description = request.form['description']
+    def add_book(book_id):
 
-            returnStatus = db.engine.execute('INSERT INTO Book (author, title, description) VALUES (?, ?, ?)', (author, title, description),commit=True)
-            return render_template('add_book.html', book_title=title)
-        return render_template('add_book.html', book_title="")
+        book = Book_data.query.filter(Book_data.id == book_id).first()
+
+        if request.method == 'GET':
+            request.form.author = book.author
+            request.form.title = book.title
+            request.form.description = book.description
+
+        elif request.method == 'POST':
+            book.author = request.form['author']
+            book.title = request.form['title']
+            book.description = request.form['description']
+
+            db.session.add(book_id)
+            db.session.commit()
+            return redirect('home_page')
+
+
+            #returnStatus = db.engine.execute('INSERT INTO Book (author, title, description) VALUES (?, ?, ?)', (author, title, description),commit=True)
+            #return render_template('add_book.html', book_title=title)
+        return render_template('add_book.html', author = book.author, title = book.title, description = book.description)
 
 
     return app
