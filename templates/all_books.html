@@ -7,7 +7,7 @@
             <h2>{{ book['title']}}</h2>
             <h4>{{ book['author']}}</h4>
             <h6>{{ book['description']}}</h6>
-            <a href="{{ url_for('add_book', book_id=1) }}">Edit book</a>
+            <a href="{{ url_for('add_book')}}">Edit book</a>
         </div>
     {% endfor %}
   

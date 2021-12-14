@@ -97,6 +97,15 @@ def create_app():
         title = db.Column(db.String(20), unique=True)
         description = db.Column(db.String(50), unique=True)
 
+    class Categories(db.Model):
+        __tablename__ = 'categories'
+        id = db.Column(db.Integer(), primary_key=True)
+        author = db.Column(db.String(20), unique=True)
+        title = db.Column(db.String(20), unique=True)
+        description = db.Column(db.String(50), unique=True)
+        book_category = db.relationship('Book', secondary='book_data')
+
+
     # Create all database tables
     db.create_all()
 
@@ -136,25 +145,19 @@ def create_app():
     @app.route('/erase_DB')
     @roles_required('Admin') 
     def eraseDB():
-        sqlQ = db.engine.execute('DELETE FROM Book',commit=True)
+        db.drop_all()
         return '<h1>Erased!</h1>'
 
     @app.route('/seedDB')
     @roles_required('Admin') 
     def seedDB():
-        sqlQ = db.engine.execute('DROP TABLE IF EXISTS Book',commit=True)
+        marx = Book_data(author='Max Weber',title='The Protestant Ethic and the Spirit of Capitalism',description='who knows?')
 
-        sqlQuery = db.engine.execute('CREATE TABLE Book (author TEXT,title TEXT, description TEXT)',commit=True)
-
-        sqlQuery2 = db.engine.execute('INSERT INTO Book (author,title, description) VALUES ("Mary Shelly","Frankenstein", "A horror story written by a romantic.")',commit=True)
-        sqlQuery2 = db.engine.execute('INSERT INTO Book (author,title, description) VALUES ("Henry James","The Turn of the Screw", "Another British horror story")',commit=True)
-        sqlQuery2 = db.engine.execute('INSERT INTO Book (author,title, description) VALUES ("Max Weber","The Protestant Work Ethic and The Spirit", "A classic early 20th Century sociology text")',commit=True)
-        sqlQuery2 = db.engine.execute('INSERT INTO Book (author,title, description) VALUES ("Robert Putnam","Bowling Alone", "A classic late 20th Century sociology text")',commit=True)
-
-        booksQuery = db.engine.execute('SELECT rowid, * FROM Book')
-        for book in booksQuery:
-            print(book['rowid'])
-            print(book['author'])
+        weber = Book_data(author='Max Weber',title='The Protestant Ethic and the Spirit of Capitalism',description='who knows?')
+        
+        db.session.add(weber)
+        db.session.add(marx)
+        db.session.commit()
 
         return '<h1>DB Seeded!</h1>'
 
@@ -165,10 +168,11 @@ def create_app():
 
     @app.route('/all_books')
     def all_books():
-        books = db.engine.execute('SELECT * FROM Book')
+        db.create_all()
 
-        my_list_of_books = [row for row in books]
-        return render_template('all_books.html', books=my_list_of_books)
+        #my_list_of_books = [row for row in books]
+        print (all_books)
+        return render_template('all_books.html')
 
     @app.route('/add_book/<book_id>', methods={'GET','POST'})
     @login_required
@@ -193,7 +197,7 @@ def create_app():
 
             #returnStatus = db.engine.execute('INSERT INTO Book (author, title, description) VALUES (?, ?, ?)', (author, title, description),commit=True)
             #return render_template('add_book.html', book_title=title)
-        return render_template('add_book.html', author = book.author, title = book.title, description = book.description)
+        return render_template('add_book.html')
 
 
     return app
